@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Winter Road Trip Comparison: กุนมะ (คุซัทสึ) vs นากาโนะ (ลิงแช่น้ำ)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Prompt"', 'Inter', 'sans-serif'],
+          },
+          colors: {
+            slatex: {
+              950: '#060a12',
+              900: '#0c1322',
+              850: '#111b2e',
+              800: '#17233b',
+              700: '#233454',
+            },
+            amberx: {
+              400: '#fbbf24',
+              500: '#f59e0b',
+              600: '#d97706',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Prompt', 'Inter', sans-serif;
+      background-color: #060a12;
+      color: #f1f5f9;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0c1322;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #233454;
+      border-radius: 9999px;
+    }
+    .timeline-connector::before {
+      content: '';
+      position: absolute;
+      top: 2.25rem;
+      bottom: -1rem;
+      left: 1.1rem;
+      width: 2px;
+      background: linear-gradient(to bottom, #f59e0b 0%, #233454 100%);
+    }
+    .timeline-card:last-child .timeline-connector::before {
+      display: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slatex-950 text-slate-100 antialiased selection:bg-amberx-500 selection:text-slatex-950">
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 hidden transform transition-all duration-300 translate-y-4 opacity-0">
+    <div class="bg-slatex-800 border border-amberx-500/40 text-slate-100 px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2.5">
+      <span class="text-amberx-400">❄️</span>
+      <span id="toast-text" class="text-sm font-medium">บันทึกข้อมูลเรียบร้อย</span>
+    </div>
+  </div>
+
+  <!-- Hero Header -->
+  <header class="relative overflow-hidden bg-gradient-to-br from-slatex-900 via-slatex-850 to-slatex-950 border-b border-slate-800/80">
+    <div class="absolute inset-0 opacity-15 pointer-events-none" style="background-image: radial-gradient(#38bdf8 1px, transparent 1px); background-size: 26px 26px;"></div>
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8 relative z-10">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div class="inline-flex flex-wrap items-center gap-2 px-3 py-1 rounded-full bg-sky-500/15 border border-sky-400/30 text-sky-300 text-xs font-medium mb-2.5">
+            <span>📅 29–31 ธ.ค. 2026</span>
+            <span>•</span>
+            <span>🚗 รับรถ 07:30 น. (โคจิยะ)</span>
+            <span>•</span>
+            <span>🌙 กลับดึก ~20:00 น. (คืนเช้า 31)</span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+            เปรียบเทียบแผนการเดินทางท่องเที่ยวฤดูหนาว (29–31 ธ.ค. 2026)
+          </h1>
+          <p class="text-slate-400 text-sm sm:text-base mt-1">
+            เลือกเปรียบเทียบระหว่าง <span class="text-amberx-400 font-medium">เส้นทาง A: กุนมะ (คุซัทสึ & ทะเลสาบชิมะ)</span> และ <span class="text-sky-400 font-medium">เส้นทาง B: นากาโนะ (สวนลิงแช่น้ำแร่ & ปราสาทมัตสึโมโตะ)</span>
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2 shrink-0">
+          <div class="flex items-center gap-1.5 bg-slatex-950/80 border border-slate-700 px-3 py-1.5 rounded-xl">
+            <span class="text-xs text-slate-400">เรต ¥1 =</span>
+            <input type="number" step="0.01" id="global-rate" value="0.23" onchange="updateRate(this.value)" class="w-14 bg-transparent text-sm font-bold text-amberx-400 focus:outline-none text-center">
+            <span class="text-xs text-slate-400">บาท</span>
+          </div>
+          <button onclick="openResetModal()" class="px-3.5 py-2 rounded-xl bg-rose-950/50 hover:bg-rose-900/60 border border-rose-800/50 text-xs font-medium text-rose-300 transition">
+            รีเซ็ตค่าเริ่มต้น
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Side-by-Side Comparison Matrix -->
+      <div class="mt-6 bg-slatex-950/75 border border-slate-800 rounded-2xl overflow-hidden">
+        <div class="px-4 py-2.5 bg-slatex-900/90 border-b border-slate-800 flex items-center justify-between">
+          <span class="text-xs font-semibold text-slate-300">⚖️ ตารางเปรียบเทียบข้อมูลทั้ง 2 เส้นทาง (สำหรับผู้เดินทาง 2 ท่าน)</span>
+          <span class="text-[11px] text-slate-400">*คลิกที่แท็บด้านล่างเพื่อดูแผนรายวันและปรับแก้ไขงบประมาณ</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs sm:text-sm">
+            <thead>
+              <tr class="border-b border-slate-800/80 text-slate-400 bg-slatex-900/40">
+                <th class="py-2.5 px-4 font-medium">หัวข้อเปรียบเทียบ</th>
+                <th class="py-2.5 px-4 font-semibold text-amberx-400">♨️ ทริป A: กุนมะ & คารุอิซาวะ</th>
+                <th class="py-2.5 px-4 font-semibold text-sky-400">🐒 ทริป B: นากาโนะตอนเหนือ</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/60">
+              <tr>
+                <td class="py-2.5 px-4 text-slate-400">ไฮไลต์หลัก</td>
+                <td class="py-2.5 px-4 text-slate-200">คุซัทสึออนเซ็น, ทะเลสาบสีฟ้าชิมะ, น้ำตก & ทุ่งลาวา, ไฟประดับทาคาซากิ</td>
+                <td class="py-2.5 px-4 text-slate-200">สวนลิงแช่น้ำแร่, เมืองเกาลัดโอบุเสะ, วัดเซ็นโคจิ, ปราสาทมัตสึโมโตะเปิดไฟ</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-4 text-slate-400">ระยะทาง & การขับรถ</td>
+                <td class="py-2.5 px-4 text-emerald-300">~460 กม. (ใกล้กว่า ขับสบายกว่า ~1 ชม.)</td>
+                <td class="py-2.5 px-4 text-amber-300">~560 กม. (ขับไกลกว่า ~100 กม. ทางเขาหิมะหนากว่า)</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-4 text-slate-400">ค่าเดินทาง (รถ+ทางด่วน+น้ำมัน)</td>
+                <td class="py-2.5 px-4 font-semibold text-white" id="comp-travel-A">¥37,500</td>
+                <td class="py-2.5 px-4 font-semibold text-white" id="comp-travel-B">¥41,300</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-4 text-slate-400">งบประมาณรวมทั้งทริป (สำหรับ 2 ท่าน)</td>
+                <td class="py-2.5 px-4 font-bold text-amberx-400" id="comp-total-A">¥81,000 (~฿18,630)</td>
+                <td class="py-2.5 px-4 font-bold text-sky-400" id="comp-total-B">¥87,300 (~฿20,079)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sticky Two-Trip Main Tabs -->
+  <div class="sticky top-0 z-30 bg-slatex-950/95 backdrop-blur-md border-b border-slate-800 shadow-lg">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3">
+      <div class="grid grid-cols-2 gap-2.5 sm:gap-4">
+        <button onclick="switchTripTab('A')" id="tab-btn-A"
+          class="flex items-center justify-center gap-2 py-3 px-4 rounded-2xl font-bold text-sm sm:text-base transition border-2 border-amberx-500 bg-amberx-500 text-slatex-950 shadow-lg shadow-amberx-500/20">
+          <span>♨️</span>
+          <span>ทริป A: กุนมะ (คุซัทสึ)</span>
+        </button>
+
+        <button onclick="switchTripTab('B')" id="tab-btn-B"
+          class="flex items-center justify-center gap-2 py-3 px-4 rounded-2xl font-bold text-sm sm:text-base transition border-2 border-slate-700 bg-slatex-900 text-slate-300 hover:border-sky-500/60 hover:text-white">
+          <span>🐒</span>
+          <span>ทริป B: นากาโนะ (ดูลิง)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Container -->
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-6 pb-20 space-y-8">
+
+    <!-- Trip Overview & Cost Summary Cards -->
+    <section id="trip-summary-section" class="space-y-4">
+      <div class="bg-slatex-900 border border-slate-800 rounded-2xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <span id="trip-badge" class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-amberx-500/15 text-amberx-400 border border-amberx-500/30 mb-2">
+            เส้นทางแนะนำสายธรรมชาติ & ออนเซ็นระดับท็อป
+          </span>
+          <h2 id="trip-title" class="text-xl sm:text-2xl font-bold text-white">
+            ทริป A: โคจิยะ – คารุอิซาวะ – คุซัทสึ – ทะเลสาบชิมะ – ทาคาซากิ
+          </h2>
+          <p id="trip-desc" class="text-sm text-slate-400 mt-1">
+            เน้นธรรมชาติ วิวภูเขาไฟ ทะเลสาบสีฟ้ามรกต แช่ออนเซ็นคุซัทสึ และชมไฟประดับเมืองทาคาซากิถึง 20:00 น. (ไม่เน้นช้อปปิ้ง)
+          </p>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <button onclick="copyTripText()" class="px-4 py-2.5 rounded-xl bg-slatex-800 hover:bg-slatex-700 border border-slate-700 text-xs font-semibold text-white transition flex items-center gap-1.5">
+            📋 คัดลอกแผนทริปนี้
+          </button>
+        </div>
+      </div>
+
+      <!-- 3 Cost KPI Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-slatex-900 border border-slate-800 rounded-2xl p-4">
+          <div class="text-xs text-slate-400">1. ค่าใช้จ่ายในการเดินทาง (รถเช่า + ทางด่วน + น้ำมัน + จอดรถ)</div>
+          <div id="kpi-travel" class="text-2xl font-bold text-white mt-1">¥37,500</div>
+          <div id="kpi-travel-sub" class="text-xs text-slate-400 mt-0.5">ประมาณ 8,625 บาท</div>
+        </div>
+        <div class="bg-slatex-900 border border-slate-800 rounded-2xl p-4">
+          <div class="text-xs text-slate-400">2. ค่าที่พัก อาหาร และกิจกรรม (สำหรับ 2 ท่าน)</div>
+          <div id="kpi-activity" class="text-2xl font-bold text-sky-400 mt-1">¥43,500</div>
+          <div id="kpi-activity-sub" class="text-xs text-slate-400 mt-0.5">ประมาณ 10,005 บาท</div>
+        </div>
+        <div class="bg-slatex-900 border border-slate-800 rounded-2xl p-4">
+          <div class="text-xs text-slate-400">3. งบประมาณรวมทั้งหมดตลอดทริป (สุทธิ)</div>
+          <div id="kpi-total" class="text-2xl font-bold text-amberx-400 mt-1">¥81,000</div>
+          <div id="kpi-total-sub" class="text-xs text-slate-400 mt-0.5">ประมาณ 18,630 บาท (รวมทุกหมวดหมู่)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Day-by-Day Itinerary Section -->
+    <section class="space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="flex flex-wrap gap-2">
+          <button onclick="selectDayFilter('all')" id="day-filter-all" class="day-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white text-slatex-950 transition">
+            ดูทั้งหมด (29–31 ธ.ค.)
+          </button>
+          <button onclick="selectDayFilter(1)" id="day-filter-1" class="day-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slatex-900 text-slate-300 border border-slate-800 hover:bg-slatex-800 transition">
+            วันที่ 1 (29 ธ.ค.)
+          </button>
+          <button onclick="selectDayFilter(2)" id="day-filter-2" class="day-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slatex-900 text-slate-300 border border-slate-800 hover:bg-slatex-800 transition">
+            วันที่ 2 (30 ธ.ค. • กลับ 20:00)
+          </button>
+          <button onclick="selectDayFilter(3)" id="day-filter-3" class="day-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slatex-900 text-slate-300 border border-slate-800 hover:bg-slatex-800 transition">
+            วันที่ 3 (31 ธ.ค. • คืนรถ)
+          </button>
+        </div>
+
+        <button onclick="openAddStopModal()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition flex items-center justify-center gap-1.5">
+          <span>+ เพิ่มจุดแวะเที่ยวในทริปนี้</span>
+        </button>
+      </div>
+
+      <!-- Timeline Container -->
+      <div id="itinerary-container" class="space-y-6">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- Editable Cost Breakdown Table -->
+    <section class="bg-slatex-900 border border-slate-800 rounded-2xl overflow-hidden">
+      <div class="p-4 sm:p-5 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <h3 class="text-base sm:text-lg font-bold text-white">💴 ตารางประมาณการค่าใช้จ่าย (แก้ไขตัวเลขได้ตามจริง)</h3>
+          <p class="text-xs text-slate-400">เรตค่าทางด่วนคำนวณจากบัตร ETC รถยนต์นั่งขนาดเล็ก/คอมแพค จากย่านโคจิยะ (Haneda IC)</p>
+        </div>
+        <span class="text-xs text-amberx-400 font-medium">*บันทึกอัตโนมัติในเบราว์เซอร์</span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-sm">
+          <thead>
+            <tr class="bg-slatex-950/60 border-b border-slate-800 text-xs text-slate-400">
+              <th class="py-3 px-4 font-semibold">รายการค่าใช้จ่าย</th>
+              <th class="py-3 px-4 font-semibold">หมวดหมู่</th>
+              <th class="py-3 px-4 font-semibold">รายละเอียด / หมายเหตุ</th>
+              <th class="py-3 px-4 font-semibold text-right">จำนวนเงิน (เยน)</th>
+              <th class="py-3 px-4 font-semibold text-right">คิดเป็นบาท</th>
+            </tr>
+          </thead>
+          <tbody id="cost-table-body" class="divide-y divide-slate-800/70">
+            <!-- Rendered dynamically -->
+          </tbody>
+          <tfoot class="bg-slatex-950/80 border-t border-slate-700 font-bold">
+            <tr>
+              <td colspan="3" class="py-3.5 px-4 text-right text-slate-300">ยอดรวมประมาณการทั้งหมด (สำหรับ 2 ท่าน):</td>
+              <td id="table-total-jpy" class="py-3.5 px-4 text-right text-amberx-400 text-base">¥0</td>
+              <td id="table-total-thb" class="py-3.5 px-4 text-right text-emerald-400 text-base">฿0</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </section>
+
+    <!-- Winter Driving & Car Rental Checklist -->
+    <section class="bg-slatex-900 border border-slate-800 rounded-2xl p-5">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h3 class="text-base sm:text-lg font-bold text-white">❄️ เช็กลิสต์สำคัญสำหรับขับรถหน้าหนาว (29–31 ธ.ค.)</h3>
+          <p class="text-xs text-slate-400">ใช้ร่วมกันได้ทั้ง 2 ทริป กดติ๊กเพื่อเช็กความพร้อมก่อนรับรถ 07:30 น.</p>
+        </div>
+        <span id="checklist-counter" class="text-xs font-bold px-3 py-1 rounded-full bg-slatex-800 text-sky-400">0/0</span>
+      </div>
+      <div id="checklist-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Add Stop Modal -->
+  <div id="add-stop-modal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slatex-900 border border-slate-700 rounded-2xl w-full max-w-md p-5 sm:p-6 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+        <h3 class="text-lg font-bold text-white">+ เพิ่มจุดแวะเที่ยวใหม่</h3>
+        <button onclick="closeAddStopModal()" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+      <form onsubmit="handleAddStop(event)" class="space-y-3.5">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">วันที่</label>
+            <select id="new-stop-day" class="w-full px-3 py-2 rounded-xl bg-slatex-950 border border-slate-700 text-sm text-white">
+              <option value="1">วันที่ 1 (29 ธ.ค.)</option>
+              <option value="2">วันที่ 2 (30 ธ.ค.)</option>
+              <option value="3">วันที่ 3 (31 ธ.ค.)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">เวลาโดยประมาณ</label>
+            <input type="text" id="new-stop-time" placeholder="เช่น 16:30 น." required class="w-full px-3 py-2 rounded-xl bg-slatex-950 border border-slate-700 text-sm text-white">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">หมวดหมู่</label>
+          <select id="new-stop-tag" class="w-full px-3 py-2 rounded-xl bg-slatex-950 border border-slate-700 text-sm text-white">
+            <option value="ธรรมชาติ">🌲 ธรรมชาติ & วิวสวย</option>
+            <option value="ออนเซ็น">♨️ ออนเซ็น</option>
+            <option value="ไฮไลต์">⭐ ไฮไลต์ห้ามพลาด</option>
+            <option value="วิวกลางคืน">✨ ไฟประดับ & วิวกลางคืน</option>
+            <option value="อาหาร">🍜 อาหาร & คาเฟ่</option>
+            <option value="เดินทาง">🚗 ขับรถ & เดินทาง</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">ชื่อสถานที่</label>
+          <input type="text" id="new-stop-title" placeholder="ชื่อสถานที่ภาษาไทย / อังกฤษ" required class="w-full px-3 py-2 rounded-xl bg-slatex-950 border border-slate-700 text-sm text-white">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">รายละเอียด & จุดเด่น</label>
+          <textarea id="new-stop-desc" rows="3" placeholder="รายละเอียดกิจกรรม จุดจอดรถ หรือข้อควรระวัง..." required class="w-full px-3 py-2 rounded-xl bg-slatex-950 border border-slate-700 text-sm text-white"></textarea>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeAddStopModal()" class="px-4 py-2 rounded-xl bg-slatex-800 text-sm text-slate-300">ยกเลิก</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm">เพิ่มลงแผน</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Custom Reset Confirmation Modal -->
+  <div id="reset-modal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slatex-900 border border-slate-700 rounded-2xl w-full max-w-sm p-6 shadow-2xl">
+      <h3 class="text-lg font-bold text-white">รีเซ็ตข้อมูลทั้งหมด?</h3>
+      <p class="text-sm text-slate-400 mt-2">
+        ระบบจะคืนค่าแผนการเดินทาง ตัวเลขค่าใช้จ่าย และเช็กลิสต์ของทั้ง 2 ทริปกลับเป็นค่าเริ่มต้น
+      </p>
+      <div class="flex justify-end gap-2 mt-6">
+        <button onclick="closeResetModal()" class="px-4 py-2 rounded-xl bg-slatex-800 text-sm text-slate-300">ยกเลิก</button>
+        <button onclick="confirmReset()" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-semibold text-sm">ยืนยันรีเซ็ต</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================
+    // INITIAL DEFAULT DATA FOR TRIP A & TRIP B
+    // ==========================================
+    const INITIAL_STATE = {
+      exchangeRate: 0.23,
+      trips: {
+        A: {
+          badge: "♨️ เส้นทางสายธรรมชาติ ทะเลสาบสีฟ้า & ออนเซ็นระดับท็อป (ขับใกล้กว่า)",
+          title: "ทริป A: กุนมะ & คารุอิซาวะ (Kusatsu Onsen & Lake Shima Loop)",
+          desc: "ขับรถเป็นวงกลมจากโตเกียว แวะธรรมชาติคารุอิซาวะ นอนแช่ออนเซ็นคุซัทสึ ชมทะเลสาบสีฟ้าชิมะ ไต่บันไดหินอิคาโฮะ และดูไฟประดับเมืองทาคาซากิจนถึง 20:00 น.",
+          stops: [
+            // Day 1
+            {
+              id: "a-1", day: 1, time: "07:30 น.", tag: "เดินทาง", done: false,
+              title: "รับรถเช่าที่ย่านโคจิยะ (Kojiya Station) & ล้อหมุน ~07:50 น.",
+              desc: "ตรวจเช็กรถรอบคัน ถ่ายวิดีโอหลักฐาน ยืนยันยางฤดูหนาว (Studless Tires) และเสียบบัตร ETC จากนั้นขึ้นทางด่วน Shuto -> Kan-etsu -> Joshin-etsu มุ่งหน้าคารุอิซาวะ",
+              query: "Kojiya Station Ota Tokyo"
+            },
+            {
+              id: "a-2", day: 1, time: "11:15 น.", tag: "ธรรมชาติ", done: false,
+              title: "บึงคุโมบะ (Kumoba Pond • Karuizawa)",
+              desc: "บึงน้ำกลางป่าสนที่เงียบสงบและน้ำใสสะท้อนวิวต้นไม้ปกคลุมด้วยหิมะ เดินวนรอบบึงใช้เวลาประมาณ 20–30 นาที อากาศสดชื่นถ่ายรูปสวยมาก",
+              query: "Kumoba Pond Karuizawa"
+            },
+            {
+              id: "a-3", day: 1, time: "12:00 น.", tag: "อาหาร", done: false,
+              title: "โบสถ์ไม้ Karuizawa Kogen Church & Harunire Terrace",
+              desc: "แวะถ่ายรูปโบสถ์ไม้ทรงสามเหลี่ยมกลางป่าสน จากนั้นเดินไปโซน Harunire Terrace คอมมูนิตี้ไม้ริมลำธาร เพื่อจิบกาแฟร้าน Maruyama Coffee และทานมื้อเที่ยง (ไม่เน้นช้อปปิ้ง)",
+              query: "Harunire Terrace Karuizawa"
+            },
+            {
+              id: "a-4", day: 1, time: "14:00 น.", tag: "ธรรมชาติ", done: false,
+              title: "น้ำตกชิราอิโตะ (Shiraito Falls • Karuizawa)",
+              desc: "น้ำตกทรงโค้งที่สายน้ำไหลซึมผ่านชั้นหินภูเขาไฟเป็นม่านน้ำสีขาวตัดกับหิมะ เดินจากจุดจอดรถเพียง 5 นาที (มีค่าผ่านทางเส้น Shiraito Highland Way 500 เยน)",
+              query: "Shiraito Falls Karuizawa"
+            },
+            {
+              id: "a-5", day: 1, time: "15:00 น.", tag: "ธรรมชาติ", done: false,
+              title: "สวนทุ่งลาวาโอนิโอชิดาชิ (Onioshidashi Volcanic Park)",
+              desc: "ทุ่งหินลาวาสีดำตัดกับหิมะขาวโพลน ฉากหลังเป็นภูเขาไฟอาซามะ (*หมายเหตุ: หากออกจากคารุอิซาวะช้ากว่า 15:00 น. ให้ข้ามจุดนี้แล้วขับเข้าคุซัทสึเลยเพื่อให้ถึงก่อนมืด)",
+              query: "Onioshidashi Park"
+            },
+            {
+              id: "a-6", day: 1, time: "16:15 น.", tag: "ออนเซ็น", done: false,
+              title: "เช็กอิน Kusatsu Onsen • ลานยูบาทาเกะ & บ่อไซโนะคาวาระ",
+              desc: "จอดรถที่พัก เดินชมไอน้ำร้อนและไฟประดับรอบลาน Yubatake ยามค่ำคืน และไปแช่บ่อกลางแจ้งขนาดใหญ่ Sainokawara Open-Air Bath ท่ามกลางวิวหิมะ",
+              query: "Yubatake Kusatsu Onsen"
+            },
+            // Day 2
+            {
+              id: "a-7", day: 2, time: "09:30 น.", tag: "เดินทาง", done: false,
+              title: "ออกจากคุซัทสึ มุ่งหน้าสู่หุบเขาชิมะ (แวะชมวิวเขื่อนยันบะ)",
+              desc: "แช่ออนเซ็นรอบเช้าแล้วขับรถลงเขามาทางหุบเขาชิมะ แวะยืดเส้นยืดสายที่จุดชมวิวสันเขื่อน Yamba Dam ระหว่างทาง",
+              query: "Yamba Dam Gunma"
+            },
+            {
+              id: "a-8", day: 2, time: "10:30 น.", tag: "ไฮไลต์", done: false,
+              title: "ทะเลสาบโอคุชิมะ (Lake Okushima & Shima Blue)",
+              desc: "ขับรถวนชมทะเลสาบเหนือเขื่อนที่มีน้ำสีฟ้าครามเข้ม (Shima Blue) ตัดกับภูเขาหิมะ จอดถ่ายรูปมุมสูงที่จุดชมวิว Lake Okushima Observation Deck",
+              query: "Lake Okushima Shima Onsen"
+            },
+            {
+              id: "a-9", day: 2, time: "13:00 น.", tag: "ออนเซ็น", done: false,
+              title: "บันไดหินอิคาโฮะ (Ikaho Stone Steps) & อุด้งมิสุซาวะ",
+              desc: "แวะทานอุด้งเส้นแบนชื่อดัง (Mizusawa Udon) แล้วเดินไต่บันไดหินเก่าแก่ 365 ขั้น กินซาลาเปาออนเซ็น เดินถึงสะพานแดง Kajika และแช่น้ำแร่สีทอง Kogane no Yu",
+              query: "Ikaho Onsen Stone Steps"
+            },
+            {
+              id: "a-10", day: 2, time: "17:15 น.", tag: "วิวกลางคืน", done: false,
+              title: "ชมไฟประดับฤดูหนาวเมืองทาคาซากิ (Takasaki Hikari no Pageant)",
+              desc: "ขับลงจากอิคาโฮะเข้าเมืองทาคาซากิ (~35 นาที) เดินเล่นถ่ายรูปไฟประดับฤดูหนาวบริเวณหน้าสถานี Takasaki และสวนปราสาททาคาซากิ (เปิดไฟตั้งแต่ 17:00 น.)",
+              query: "Takasaki Station West Exit Gunma"
+            },
+            {
+              id: "a-11", day: 2, time: "18:30 น.", tag: "อาหาร", done: false,
+              title: "มื้อค่ำเมืองทาคาซากิ (เมืองแห่งพาสต้า หรือ วากิวกุนมะ)",
+              desc: "แวะทานพาสต้าจานใหญ่สไตล์ทาคาซากิ (แนะนำร้าน Bongiorno) หรือยากินิกุเนื้อวากิว Joshu Wagyu ก่อนตีรถกลับโตเกียว",
+              query: "Bongiorno Takasaki"
+            },
+            {
+              id: "a-12", day: 2, time: "20:00 น.", tag: "เดินทาง", done: false,
+              title: "ล้อหมุนขึ้นทางด่วนด่าน Takasaki IC กลับโคจิยะ (ถึง ~22:15 น.)",
+              desc: "วิ่งทางด่วน Kan-etsu กลับเข้าโตเกียว คืนวันที่ 30 ธ.ค. ฝั่งขาเข้าโตเกียวรถโล่งมาก ขับสบายๆ ถึงบ้านพักผ่อน",
+              query: "Takasaki IC Gunma"
+            },
+            // Day 3
+            {
+              id: "a-13", day: 3, time: "08:30 น.", tag: "เดินทาง", done: false,
+              title: "เติมน้ำมันเต็มถัง & คืนรถเช่าย่านโคจิยะ (เช้า 31 ธ.ค.)",
+              desc: "เช้าวันสิ้นปีถนนโล่งมาก เติมน้ำมัน Regular เต็มถัง เก็บใบเสร็จ และส่งคืนรถเช่าใกล้บ้านแบบสบายๆ",
+              query: "Kojiya Station Ota Tokyo"
+            }
+          ],
+          costs: [
+            { id: "ac1", name: "ค่าเช่ารถ 2 วัน (29–31 ธ.ค.)", category: "เดินทาง", note: "เรตที่จองไว้ (ตรวจสอบออปชันยาง Studless)", amount: 20000 },
+            { id: "ac2", name: "ค่าทางด่วนไป-กลับ (ETC)", category: "เดินทาง", note: "ขาไป Haneda->Usui-Karuizawa ~5,500 + ขากลับ Takasaki->Haneda ~4,700", amount: 10200 },
+            { id: "ac3", name: "ค่าน้ำมันตลอดทริป (~460 กม.)", category: "เดินทาง", note: "รถคอมแพค ~16 กม./ลิตร (เรกูลาร์ ~175 เยน/ลิตร)", amount: 5300 },
+            { id: "ac4", name: "ค่าทางด่วนท้องถิ่น & ที่จอดรถ", category: "เดินทาง", note: "รวม Shiraito Highland Way 500 เยน + ที่จอดรถตามจุดท่องเที่ยว", amount: 2000 },
+            { id: "ac5", name: "ค่าที่พักคืนวันที่ 29 ธ.ค. ที่คุซัทสึ (สำหรับ 2 ท่าน)", category: "ที่พัก", note: "เรียวกัง/โรงแรมในคุซัทสึ (1 คืน)", amount: 26000 },
+            { id: "ac6", name: "ค่าอาหาร & คาเฟ่ 2 วัน (สำหรับ 2 ท่าน)", category: "อาหาร", note: "มื้อเที่ยงคารุอิซาวะ, อุด้งอิคาโฮะ, มื้อค่ำทาคาซากิ & คาเฟ่", amount: 14000 },
+            { id: "ac7", name: "ค่าเข้าสถานที่ & แช่ออนเซ็น (สำหรับ 2 ท่าน)", category: "กิจกรรม", note: "บ่อ Sainokawara, บ่อน้ำสีทอง Ikaho, สวนลาวา", amount: 3500 }
+          ]
+        },
+
+        B: {
+          badge: "🐒 เส้นทางสายไฮไลต์ครบเครื่อง ดูลิงแช่น้ำ & ปราสาทอีกาดำเปิดไฟค่ำ",
+          title: "ทริป B: นากาโนะตอนเหนือ (Snow Monkeys, Obuse, Zenkoji & Matsumoto)",
+          desc: "กิจกรรมหลากหลายไม่ซ้ำใคร ดูลิงแช่ออนเซ็นกลางหิมะ เดินเมืองเกาลัดโอบุเสะ ไหว้วัดเซ็นโคจิ และชมปราสาทมัตสึโมโตะเปิดไฟ Light-up ก่อนกลับ 20:00 น.",
+          stops: [
+            // Day 1
+            {
+              id: "b-1", day: 1, time: "07:30 น.", tag: "เดินทาง", done: false,
+              title: "รับรถเช่าที่ย่านโคจิยะ (Kojiya Station) & ล้อหมุน ~07:50 น.",
+              desc: "ตรวจเช็กรถ ยืนยันยาง Studless และบัตร ETC แล้ววิ่งทางด่วนยาวมุ่งหน้าสู่นากาโนะตอนเหนือ (ใช้เวลาประมาณ 3.5 – 4 ชั่วโมงรวมแวะจุดพักรถ)",
+              query: "Kojiya Station Ota Tokyo"
+            },
+            {
+              id: "b-2", day: 1, time: "11:30 น.", tag: "อาหาร", done: false,
+              title: "เมืองเกาลัดโอบุเสะ (Obuse Town • Nagano)",
+              desc: "เมืองเล็กๆ สุดคลาสสิกที่ขึ้นชื่อเรื่องเกาลัดและศิลปะโฮคุไซ เดินเล่นบนตรอกปูด้วยไม้เกาลัด ทานมื้อเที่ยงและชิมขนมหวานเกาลัดชื่อดัง (เช่น ร้าน Obusedo หรือ Sakurai Kanseido)",
+              query: "Obuse Nagano"
+            },
+            {
+              id: "b-3", day: 1, time: "15:00 น.", tag: "ออนเซ็น", done: false,
+              title: "เช็กอิน Yudanaka / Shibu Onsenkyo (หมู่บ้านออนเซ็นโบราณ)",
+              desc: "เข้าพักย่านออนเซ็นเก่าแก่ใกล้สวนลิง เดินเล่นในตรอกหินแคบๆ ยามเย็น ใส่ชุดยูกาตะเดินตระเวนแช่บ่อสาธารณะ 9 แห่ง (Sotoyu Meguri) ท่ามกลางบรรยากาศหิมะ",
+              query: "Shibu Onsen Yamanouchi Nagano"
+            },
+            // Day 2
+            {
+              id: "b-4", day: 2, time: "09:00 น.", tag: "ไฮไลต์", done: false,
+              title: "สวนลิงแช่ออนเซ็น (Jigokudani Monkey Park)",
+              desc: "ไฮไลต์สำคัญ! แนะนำให้ไปตั้งแต่สวนเปิด 09:00 น. เดินเท้าเข้าทางเดินป่าหิมะประมาณ 30–40 นาที เพื่อชมฝูงลิงภูเขาลงมาแช่น้ำแร่อุ่นๆ อย่างใกล้ชิด",
+              query: "Jigokudani Monkey Park Nagano"
+            },
+            {
+              id: "b-5", day: 2, time: "12:30 น.", tag: "อาหาร", done: false,
+              title: "วัดเซ็นโคจิ (Zenkoji Temple) & ถนนคนเดิน Nakamise-dori",
+              desc: "ขับรถเข้าตัวเมืองนากาโนะ ไหว้พระวัดเก่าแก่คู่บ้านคู่เมือง และเดินชิมของกินท้องถิ่นหน้าวัดอย่างโซบะชินชู (Shinshu Soba) และขนมปังไส้ผักโอยะกิ (Oyaki)",
+              query: "Zenkoji Temple Nagano"
+            },
+            {
+              id: "b-6", day: 2, time: "15:30 น.", tag: "วิวกลางคืน", done: false,
+              title: "ปราสาทมัตสึโมโตะ (Matsumoto Castle) & ถนนกบ Nawate-dori",
+              desc: "ขับรถลงมาเมืองมัตสึโมโตะ (~1 ชม.) ชมปราสาทอีกาดำฉากหลังเทือกเขาแอลป์ญี่ปุ่นหิมะ เดินเล่นย่านถนนกบ Nawate-dori และอยู่รอชมไฟ Light-up ปราสาทช่วงค่ำ 17:00 น.",
+              query: "Matsumoto Castle Nagano"
+            },
+            {
+              id: "b-7", day: 2, time: "18:30 น.", tag: "อาหาร", done: false,
+              title: "มื้อค่ำเมืองมัตสึโมโตะ (ซอสคัตสึด้ง หรือ ไก่ทอดซันโซคุยากิ)",
+              desc: "ทานอาหารขึ้นชื่อประจำเมืองมัตสึโมโตะอย่างไก่ทอดหมักกระเทียมชิ้นใหญ่ (Sanzokuyaki) หรือข้าวหน้าหมูทอดราดซอสสูตรพิเศษ ก่อนเดินทางกลับ",
+              query: "Matsumoto Station Nagano"
+            },
+            {
+              id: "b-8", day: 2, time: "20:00 น.", tag: "เดินทาง", done: false,
+              title: "ล้อหมุนขึ้นทางด่วนด่าน Matsumoto IC กลับโคจิยะ (ถึง ~22:45 น.)",
+              desc: "วิ่งทางด่วน Chuo Expressway กลับเข้าโตเกียว คืนวันที่ 30 ธ.ค. ฝั่งขาเข้าโตเกียวรถโล่ง ขับสบายๆ ถึงบ้านพักผ่อน",
+              query: "Matsumoto IC Nagano"
+            },
+            // Day 3
+            {
+              id: "b-9", day: 3, time: "08:30 น.", tag: "เดินทาง", done: false,
+              title: "เติมน้ำมันเต็มถัง & คืนรถเช่าย่านโคจิยะ (เช้า 31 ธ.ค.)",
+              desc: "เช้าวันสิ้นปีถนนโล่งมาก เติมน้ำมัน Regular เต็มถัง เก็บใบเสร็จ และส่งคืนรถเช่าใกล้บ้านแบบสบายๆ",
+              query: "Kojiya Station Ota Tokyo"
+            }
+          ],
+          costs: [
+            { id: "bc1", name: "ค่าเช่ารถ 2 วัน (29–31 ธ.ค.)", category: "เดินทาง", note: "เรตที่จองไว้ (ต้องมีออปชันยาง Studless)", amount: 20000 },
+            { id: "bc2", name: "ค่าทางด่วนไป-กลับ (ETC)", category: "เดินทาง", note: "ขาไป Haneda->Obuse ~6,800 + ขากลับ Matsumoto->Haneda ~6,000", amount: 12800 },
+            { id: "bc3", name: "ค่าน้ำมันตลอดทริป (~560 กม.)", category: "เดินทาง", note: "ระยะทางไกลกว่ากุนมะ ~100 กม.", amount: 6500 },
+            { id: "bc4", name: "ค่าที่จอดรถตามจุดท่องเที่ยว", category: "เดินทาง", note: "ลานจอดรถสวนลิง, วัดเซ็นโคจิ, ปราสาทมัตสึโมโตะ", amount: 2000 },
+            { id: "bc5", name: "ค่าที่พักคืนวันที่ 29 ธ.ค. ที่ยูดานากะ/ชิบุ (สำหรับ 2 ท่าน)", category: "ที่พัก", note: "เรียวกังโซนออนเซ็นใกล้สวนลิง (1 คืน)", amount: 28000 },
+            { id: "bc6", name: "ค่าอาหาร & คาเฟ่ 2 วัน (สำหรับ 2 ท่าน)", category: "อาหาร", note: "ขนมเกาลัดโอบุเสะ, โซบะวัดเซ็นโคจิ, มื้อค่ำมัตสึโมโตะ", amount: 14000 },
+            { id: "bc7", name: "ค่าเข้าสวนลิง, ปราสาท & ออนเซ็น (สำหรับ 2 ท่าน)", category: "กิจกรรม", note: "Jigokudani Monkey Park (1,600) + ปราสาทมัตสึโมโตะ (1,400) + ออนเซ็น", amount: 4000 }
+          ]
+        }
+      },
+      checklist: [
+        { id: "chk1", text: "ยืนยันกับร้านเช่ารถว่าติดยางฤดูหนาว (Studless Tires) ครบ 4 ล้อ", checked: false },
+        { id: "chk2", text: "เตรียมใบขับขี่สากล (IDP) + ใบขับขี่ไทยตัวจริง + พาสปอร์ต", checked: false },
+        { id: "chk3", text: "เช็กบัตร ETC (เสียบเข้าเครื่องอ่านในรถและมีไฟสีเขียวขึ้น)", checked: false },
+        { id: "chk4", text: "ถ่ายรูป/วิดีโอรอบคันตอนรับรถ 07:30 น. และตั้งค่า GPS เป็นภาษาอังกฤษ", checked: false },
+        { id: "chk5", text: "เสื้อกันหนาวกันลม ฮีทเทค ถุงมือ และแผ่นแปะกันหนาว (Kairo)", checked: false },
+        { id: "chk6", text: "รองเท้าพื้นกันลื่น (จำเป็นมากสำหรับเดินทางป่าหิมะไปดูลิง & รอบคุซัทสึ)", checked: false },
+        { id: "chk7", text: "ผ้าเช็ดตัวผืนเล็ก & เหรียญ 100 เยนสำหรับตู้ล็อกเกอร์ออนเซ็น", checked: false },
+        { id: "chk8", text: "เช็กเวลาเปิดทำการสาขาคืนรถเช้าวันที่ 31 ธ.ค. และเติมน้ำมันเต็มถังก่อนคืน", checked: false }
+      ]
+    };
+
+    const STORAGE_KEY = 'winter_trip_compare_A_vs_B_2026_v2';
+    let state = loadState();
+    let activeTrip = 'A';
+    let dayFilter = 'all';
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) return JSON.parse(raw);
+      } catch (e) {
+        console.error(e);
+      }
+      return JSON.parse(JSON.stringify(INITIAL_STATE));
+    }
+
+    function saveState(notify = false) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        updateComparisonTable();
+        if (notify) showToast("บันทึกข้อมูลเรียบร้อยแล้ว");
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    // ==========================================
+    // TAB & FILTER CONTROLS
+    // ==========================================
+    function switchTripTab(tripKey) {
+      activeTrip = tripKey;
+      const btnA = document.getElementById('tab-btn-A');
+      const btnB = document.getElementById('tab-btn-B');
+
+      if (tripKey === 'A') {
+        btnA.className = "flex items-center justify-center gap-2 py-3 px-4 rounded-2xl font-bold text-sm sm:text-base transition border-2 border-amberx-500 bg-amberx-500 text-slatex-950 shadow-lg shadow-amberx-500/20";
+        btnB.className = "flex items-center justify-center gap-2 py-3 px-4 rounded-2xl font-bold text-sm sm:text-base transition border-2 border-slate-700 bg-slatex-900 text-slate-300 hover:border-sky-500/60 hover:text-white";
+      } else {
+        btnB.className = "flex items-center justify-center gap-2 py-3 px-4 rounded-2xl font-bold text-sm sm:text-base transition border-2 border-sky-500 bg-sky-500 text-slatex-950 shadow-lg shadow-sky-500/20";
+        btnA.className = "flex items-center justify-center gap-2 py-3 px-4 rounded-2xl font-bold text-sm sm:text-base transition border-2 border-slate-700 bg-slatex-900 text-slate-300 hover:border-amberx-500/60 hover:text-white";
+      }
+
+      renderActiveTrip();
+    }
+
+    function selectDayFilter(dayVal) {
+      dayFilter = dayVal;
+      ['all', 1, 2, 3].forEach(val => {
+        const el = document.getElementById(`day-filter-${val}`);
+        if (val === dayVal) {
+          el.className = "day-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white text-slatex-950 transition";
+        } else {
+          el.className = "day-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slatex-900 text-slate-300 border border-slate-800 hover:bg-slatex-800 transition";
+        }
+      });
+      renderItinerary();
+    }
+
+    function updateRate(val) {
+      const parsed = parseFloat(val);
+      if (!isNaN(parsed) && parsed > 0) {
+        state.exchangeRate = parsed;
+        saveState();
+        renderActiveTrip();
+      }
+    }
+
+    // ==========================================
+    // RENDERING FUNCTIONS
+    // ==========================================
+    function calculateTripTotals(tripKey) {
+      const costs = state.trips[tripKey].costs;
+      const total = costs.reduce((acc, c) => acc + Number(c.amount || 0), 0);
+      const travel = costs
+        .filter(c => c.category === 'เดินทาง')
+        .reduce((acc, c) => acc + Number(c.amount || 0), 0);
+      const activityAndStay = total - travel;
+      return { total, travel, activityAndStay };
+    }
+
+    function updateComparisonTable() {
+      const rate = state.exchangeRate;
+      ['A', 'B'].forEach(k => {
+        const { total, travel } = calculateTripTotals(k);
+        document.getElementById(`comp-travel-${k}`).textContent = `¥${travel.toLocaleString()} (~฿${Math.round(travel * rate).toLocaleString()})`;
+        document.getElementById(`comp-total-${k}`).textContent = `¥${total.toLocaleString()} (~฿${Math.round(total * rate).toLocaleString()})`;
+      });
+    }
+
+    function renderActiveTrip() {
+      const trip = state.trips[activeTrip];
+      const rate = state.exchangeRate;
+      const badgeEl = document.getElementById('trip-badge');
+
+      badgeEl.textContent = trip.badge;
+      badgeEl.className = activeTrip === 'A'
+        ? "inline-block px-3 py-1 rounded-full text-xs font-semibold bg-amberx-500/15 text-amberx-400 border border-amberx-500/30 mb-2"
+        : "inline-block px-3 py-1 rounded-full text-xs font-semibold bg-sky-500/15 text-sky-400 border border-sky-500/30 mb-2";
+
+      document.getElementById('trip-title').textContent = trip.title;
+      document.getElementById('trip-desc').textContent = trip.desc;
+
+      // Update KPI cards (Total amounts only, no per-person splitting)
+      const { total, travel, activityAndStay } = calculateTripTotals(activeTrip);
+
+      document.getElementById('kpi-travel').textContent = `¥${travel.toLocaleString()}`;
+      document.getElementById('kpi-travel-sub').textContent = `ประมาณ ${Math.round(travel * rate).toLocaleString()} บาท`;
+
+      document.getElementById('kpi-activity').textContent = `¥${activityAndStay.toLocaleString()}`;
+      document.getElementById('kpi-activity-sub').textContent = `ประมาณ ${Math.round(activityAndStay * rate).toLocaleString()} บาท`;
+
+      const kpiTotalEl = document.getElementById('kpi-total');
+      kpiTotalEl.textContent = `¥${total.toLocaleString()}`;
+      kpiTotalEl.className = activeTrip === 'A' ? "text-2xl font-bold text-amberx-400 mt-1" : "text-2xl font-bold text-sky-400 mt-1";
+      document.getElementById('kpi-total-sub').textContent = `ประมาณ ${Math.round(total * rate).toLocaleString()} บาท (รวมทุกหมวดหมู่)`;
+
+      renderItinerary();
+      renderCostTable();
+    }
+
+    function getTagBadgeStyle(tag) {
+      const styles = {
+        'ธรรมชาติ': 'bg-emerald-950/80 text-emerald-300 border-emerald-700/50',
+        'ออนเซ็น': 'bg-amber-950/80 text-amber-300 border-amber-700/50',
+        'ไฮไลต์': 'bg-purple-950/80 text-purple-300 border-purple-700/50',
+        'วิวกลางคืน': 'bg-indigo-950/80 text-indigo-300 border-indigo-700/50',
+        'อาหาร': 'bg-rose-950/80 text-rose-300 border-rose-700/50',
+        'เดินทาง': 'bg-sky-950/80 text-sky-300 border-sky-700/50'
+      };
+      return styles[tag] || styles['เดินทาง'];
+    }
+
+    function renderItinerary() {
+      const stops = state.trips[activeTrip].stops;
+      const container = document.getElementById('itinerary-container');
+      const daysToShow = dayFilter === 'all' ? [1, 2, 3] : [dayFilter];
+
+      const dayLabels = {
+        1: "วันที่ 1 • อังคารที่ 29 ธ.ค. 2026 (รับรถ 07:30 น. – เข้าที่พักออนเซ็น)",
+        2: "วันที่ 2 • พุธที่ 30 ธ.ค. 2026 (เที่ยวเต็มวัน & ชมไฟประดับ – ล้อหมุนกลับ ~20:00 น.)",
+        3: "วันที่ 3 • พฤหัสบดีที่ 31 ธ.ค. 2026 (เติมน้ำมัน & คืนรถเช่าย่านโคจิยะ)"
+      };
+
+      container.innerHTML = daysToShow.map(d => {
+        const dayStops = stops.filter(s => s.day === d);
+        if (dayStops.length === 0) return '';
+
+        const cardsHtml = dayStops.map((stop, idx) => {
+          const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(stop.query || stop.title)}`;
+          const accentDot = activeTrip === 'A' ? 'border-amberx-500 text-amberx-400' : 'border-sky-500 text-sky-400';
+
+          return `
+            <div class="timeline-card relative pl-10 sm:pl-11">
+              <div class="timeline-connector">
+                <button onclick="toggleStopDone('${stop.id}')" title="ติ๊กเมื่อวางแผน/เที่ยวแล้ว"
+                  class="absolute left-0 top-1.5 w-8 h-8 rounded-full border-2 flex items-center justify-center transition
+                  ${stop.done ? 'bg-emerald-500 border-emerald-400 text-slatex-950' : `bg-slatex-900 ${accentDot} hover:bg-slatex-800`}">
+                  ${stop.done
+                    ? '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>'
+                    : `<span class="text-xs font-bold">${idx + 1}</span>`
+                  }
+                </button>
+              </div>
+
+              <div class="bg-slatex-900 border ${stop.done ? 'border-emerald-800/50 opacity-75' : 'border-slate-800 hover:border-slate-700'} rounded-2xl p-4 transition">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <span class="px-2.5 py-0.5 rounded-lg bg-slatex-950 border border-slate-700 text-xs font-bold ${activeTrip === 'A' ? 'text-amberx-400' : 'text-sky-400'}">
+                      🕒 ${escapeHtml(stop.time)}
+                    </span>
+                    <span class="px-2.5 py-0.5 rounded-lg border text-xs font-medium ${getTagBadgeStyle(stop.tag)}">
+                      ${escapeHtml(stop.tag)}
+                    </span>
+                  </div>
+                  <button onclick="deleteStop('${stop.id}')" title="ลบจุดแวะนี้" class="text-slate-500 hover:text-rose-400 text-xs px-1.5 py-0.5 rounded">
+                    ✕ ลบ
+                  </button>
+                </div>
+
+                <h4 class="text-base font-bold ${stop.done ? 'line-through text-slate-400' : 'text-white'}">
+                  ${escapeHtml(stop.title)}
+                </h4>
+                <p class="text-xs sm:text-sm text-slate-300/90 mt-1 leading-relaxed">
+                  ${escapeHtml(stop.desc)}
+                </p>
+
+                <div class="mt-3 pt-2.5 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2">
+                  <a href="${mapLink}" target="_blank" rel="noopener noreferrer"
+                    class="inline-flex items-center gap-1 text-xs font-semibold text-sky-400 hover:text-sky-300 transition">
+                    📍 ดูพิกัดใน Google Maps ↗
+                  </a>
+                  <button onclick="toggleStopDone('${stop.id}')" class="text-xs px-2.5 py-1 rounded-lg ${stop.done ? 'bg-emerald-950 text-emerald-300' : 'bg-slatex-800 text-slate-300 hover:bg-slatex-700'}">
+                    ${stop.done ? '✓ เช็กอินแล้ว' : 'ติ๊กถูก'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        return `
+          <div class="bg-slatex-900/40 border border-slate-800/80 rounded-2xl p-4 sm:p-5 space-y-4">
+            <h3 class="text-sm sm:text-base font-bold text-slate-200 border-b border-slate-800 pb-2.5">
+              ${dayLabels[d]}
+            </h3>
+            <div class="space-y-3.5">
+              ${cardsHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderCostTable() {
+      const costs = state.trips[activeTrip].costs;
+      const rate = state.exchangeRate;
+      const tbody = document.getElementById('cost-table-body');
+
+      tbody.innerHTML = costs.map(item => {
+        const thb = Math.round(item.amount * rate);
+        return `
+          <tr class="hover:bg-slatex-800/40 transition">
+            <td class="py-3 px-4 font-medium text-white">${escapeHtml(item.name)}</td>
+            <td class="py-3 px-4 text-xs">
+              <span class="px-2 py-0.5 rounded-md bg-slatex-950 border border-slate-800 text-slate-300">${escapeHtml(item.category)}</span>
+            </td>
+            <td class="py-3 px-4 text-xs text-slate-400">${escapeHtml(item.note)}</td>
+            <td class="py-3 px-4 text-right">
+              <input type="number" min="0" value="${item.amount}" onchange="updateCostItem('${item.id}', this.value)"
+                class="w-28 text-right px-2.5 py-1 rounded-lg bg-slatex-950 border border-slate-700 font-semibold text-white focus:outline-none focus:border-amberx-500">
+            </td>
+            <td class="py-3 px-4 text-right text-slate-300">฿${thb.toLocaleString()}</td>
+          </tr>
+        `;
+      }).join('');
+
+      const { total } = calculateTripTotals(activeTrip);
+      document.getElementById('table-total-jpy').textContent = `¥${total.toLocaleString()}`;
+      document.getElementById('table-total-thb').textContent = `฿${Math.round(total * rate).toLocaleString()}`;
+    }
+
+    function renderChecklist() {
+      const container = document.getElementById('checklist-grid');
+      const doneCount = state.checklist.filter(c => c.checked).length;
+      document.getElementById('checklist-counter').textContent = `${doneCount} / ${state.checklist.length} พร้อมแล้ว`;
+
+      container.innerHTML = state.checklist.map((item, idx) => `
+        <label class="flex items-start gap-3 p-3 rounded-xl bg-slatex-950/70 hover:bg-slatex-800/70 border border-slate-800 cursor-pointer transition">
+          <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleChecklist(${idx})"
+            class="mt-0.5 w-4 h-4 rounded accent-amber-500 cursor-pointer">
+          <span class="text-xs sm:text-sm ${item.checked ? 'line-through text-slate-500' : 'text-slate-200'}">
+            ${escapeHtml(item.text)}
+          </span>
+        </label>
+      `).join('');
+    }
+
+    // ==========================================
+    // INTERACTIVE MUTATIONS
+    // ==========================================
+    function toggleStopDone(stopId) {
+      const stop = state.trips[activeTrip].stops.find(s => s.id === stopId);
+      if (stop) {
+        stop.done = !stop.done;
+        saveState();
+        renderItinerary();
+      }
+    }
+
+    function deleteStop(stopId) {
+      state.trips[activeTrip].stops = state.trips[activeTrip].stops.filter(s => s.id !== stopId);
+      saveState(true);
+      renderItinerary();
+    }
+
+    function updateCostItem(costId, newVal) {
+      const item = state.trips[activeTrip].costs.find(c => c.id === costId);
+      if (item) {
+        item.amount = Math.max(0, parseInt(newVal, 10) || 0);
+        saveState();
+        renderActiveTrip();
+      }
+    }
+
+    function toggleChecklist(idx) {
+      state.checklist[idx].checked = !state.checklist[idx].checked;
+      saveState();
+      renderChecklist();
+    }
+
+    // Modal handlers
+    function openAddStopModal() {
+      document.getElementById('add-stop-modal').classList.remove('hidden');
+    }
+
+    function closeAddStopModal() {
+      document.getElementById('add-stop-modal').classList.add('hidden');
+    }
+
+    function handleAddStop(e) {
+      e.preventDefault();
+      const day = parseInt(document.getElementById('new-stop-day').value, 10);
+      const time = document.getElementById('new-stop-time').value.trim();
+      const tag = document.getElementById('new-stop-tag').value;
+      const title = document.getElementById('new-stop-title').value.trim();
+      const desc = document.getElementById('new-stop-desc').value.trim();
+
+      state.trips[activeTrip].stops.push({
+        id: 'custom-' + Date.now(),
+        day,
+        time,
+        tag,
+        title,
+        desc,
+        query: title,
+        done: false
+      });
+
+      document.getElementById('new-stop-time').value = '';
+      document.getElementById('new-stop-title').value = '';
+      document.getElementById('new-stop-desc').value = '';
+      closeAddStopModal();
+      saveState(true);
+      renderItinerary();
+    }
+
+    function openResetModal() {
+      document.getElementById('reset-modal').classList.remove('hidden');
+    }
+
+    function closeResetModal() {
+      document.getElementById('reset-modal').classList.add('hidden');
+    }
+
+    function confirmReset() {
+      state = JSON.parse(JSON.stringify(INITIAL_STATE));
+      saveState();
+      closeResetModal();
+      document.getElementById('global-rate').value = state.exchangeRate;
+      renderActiveTrip();
+      renderChecklist();
+      showToast("รีเซ็ตข้อมูลทั้งหมดกลับเป็นค่าเริ่มต้นแล้ว");
+    }
+
+    function copyTripText() {
+      const trip = state.trips[activeTrip];
+      const { total, travel } = calculateTripTotals(activeTrip);
+      const rate = state.exchangeRate;
+      let out = `${trip.title}\n${trip.desc}\n\n`;
+      [1, 2, 3].forEach(d => {
+        out += `--- วันที่ ${d} ---\n`;
+        trip.stops.filter(s => s.day === d).forEach(s => {
+          out += `• [${s.time}] ${s.title}\n  ${s.desc}\n`;
+        });
+        out += `\n`;
+      });
+      out += `💴 ค่าเดินทาง: ¥${travel.toLocaleString()} | งบประมาณรวมทั้งหมด: ¥${total.toLocaleString()} (~${Math.round(total * rate).toLocaleString()} บาท)`;
+
+      const ta = document.createElement('textarea');
+      ta.value = out;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        showToast("คัดลอกสรุปแผนทริปนี้ลงคลิปบอร์ดแล้ว!");
+      } catch (err) {
+        showToast("ไม่สามารถคัดลอกได้");
+      }
+      document.body.removeChild(ta);
+    }
+
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      document.getElementById('toast-text').textContent = msg;
+      el.classList.remove('hidden');
+      setTimeout(() => el.classList.remove('translate-y-4', 'opacity-0'), 10);
+      setTimeout(() => {
+        el.classList.add('translate-y-4', 'opacity-0');
+        setTimeout(() => el.classList.add('hidden'), 300);
+      }, 2600);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('global-rate').value = state.exchangeRate;
+      updateComparisonTable();
+      renderActiveTrip();
+      renderChecklist();
+    });
+  </script>
+</body>
+</html>
